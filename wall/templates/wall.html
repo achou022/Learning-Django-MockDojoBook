@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    {%load static%}
+    <link rel="stylesheet" href="{%static ''%}">
+    <title>Dojo Wall</title>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <h1 style="color: aliceblue;">CodingDojo Wall</h1>
+        <div class="d-flex">
+            <h4 class="ml-auto p-2" style="color: aliceblue;">Welcome {{user.firstName}} {{user.lastName}}</h4>
+            <a class="ml-auto p-2" href="/logout" style="color:aliceblue;">log off</a>
+        </div>
+    </nav>
+    <div class="container">
+        <h3 class="d-flex justify-content-center">Share your thoughts Ninjas</h3>
+        <div class="d-flex justify-content-center">
+            <form action="/wall/post" method="post">
+                {% csrf_token %}
+                <label for="post">
+                    <textarea class="form-control form-control-lg" name="post" cols="100"></textarea>
+                    <input class="btn btn-primary btn-lg btn-block" type="submit" value="Create a Post">
+                </label>
+            </form>
+        </div>
+        {%for post in posts%}
+        <br><br>
+            <div>
+                <h4>{{post.user.firstName}} {{post.user.lastName}} {{post.created_at}}</h4>
+                <p>{{post.content}}</p>
+                {%if post.user.id == request.session.user%}
+                    <form action="/wall/post/destroy" method="post">
+                        {% csrf_token %}
+                        <input class="btn btn-outline-danger btn-sm float-right" type="submit" value="Delete">
+                        <input type="hidden" name="postID" value={{post.id}}>
+                    </form>
+                {%endif%}
+                <br><br>
+                {%for comment in post.comments.all%}
+                    <br>
+                    <h5>{{comment.user.firstName}} {{comment.user.lastName}}:</h5>
+                    <p>{{comment.content}}</p>
+                    <p>{{comment.created_at}}</p>
+                {%endfor%}
+                <div class="d-flex justify-content-center">
+                    <form action="/wall/post/comment" method="POST">
+                        {% csrf_token %}
+                        <label for="comment">
+                            Show love to fellow Ninjas
+                            <br>
+                            <textarea class="form-control" name="comment" cols="100"></textarea>
+                            <input class="btn btn-primary float-right" type="submit" value="Post a comment">
+                            <input type="hidden" name="id" value={{post.id}}>
+                        </label>
+                    </form>
+                </div>
+            </div>
+        {%endfor%}
+    </div>
+</body>
+</html>
