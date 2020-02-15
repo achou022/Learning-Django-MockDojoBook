@@ -7,7 +7,6 @@ class UserManager(models.Manager):
         errors={}
         today=str(datetime.date.today())
         print(today)
-        # age = 
         emailRegex=re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
         #determine login vs register with which key is in postdata
         if(postData['submission']=='Register'):
@@ -15,8 +14,11 @@ class UserManager(models.Manager):
                 errors['name']='First and last name should be a least two characters'
             if(not postData['pw']==postData['cpw']):
                 errors['pwMismatch']='Confirm Password does not match'
-            if (time.strptime(postData['bDay'], '%Y-%m-%d')>time.strptime(today, '%Y-%m-%d')):
-                errors['bDay']='Valid birthday needed'
+            try:
+                if (time.strptime(postData['bDay'], '%Y-%m-%d')>time.strptime(today, '%Y-%m-%d')):
+                    errors['bDay']='Valid birthday needed'
+            except:
+                errors['bDay'] = 'Please enter a valid birthday'
             if (len(User.objects.filter(email=postData['email']))>0):
                 errors['uniqueEmail']='this email has been registered!'
         if(not emailRegex.match(postData['email'])):
